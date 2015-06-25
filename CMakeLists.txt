@@ -45,6 +45,8 @@ src/Frame.cc
 src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
 src/Initializer.cc
+src/Statistics.cc
+src/CommandHandle.cc
 )
 rosbuild_add_boost_directories()
 rosbuild_link_boost(${PROJECT_NAME} thread)
@@ -53,6 +55,7 @@ target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
 cholmod
+sqlite3
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o_core.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o_solver_cholmod.so

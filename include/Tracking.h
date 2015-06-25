@@ -21,21 +21,22 @@
 #ifndef TRACKING_H
 #define TRACKING_H
 
-#include<opencv2/core/core.hpp>
-#include<opencv2/features2d/features2d.hpp>
-#include<sensor_msgs/Image.h>
-#include<sensor_msgs/image_encodings.h>
+#include <opencv2/core/core.hpp>
+#include <opencv2/features2d/features2d.hpp>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/image_encodings.h>
 
-#include"FramePublisher.h"
-#include"Map.h"
-#include"LocalMapping.h"
-#include"LoopClosing.h"
-#include"Frame.h"
+#include "FramePublisher.h"
+#include "Map.h"
+#include "LocalMapping.h"
+#include "LoopClosing.h"
+#include "Frame.h"
 #include "ORBVocabulary.h"
-#include"KeyFrameDatabase.h"
-#include"ORBextractor.h"
+#include "KeyFrameDatabase.h"
+#include "ORBextractor.h"
 #include "Initializer.h"
 #include "MapPublisher.h"
+#include "Statistics.h"
 
 #include<tf/transform_broadcaster.h>
 
@@ -49,18 +50,18 @@ class LocalMapping;
 class LoopClosing;
 
 class Tracking
-{  
+{
 
 public:
-    Tracking(ORBVocabulary* pVoc, FramePublisher* pFramePublisher, MapPublisher* pMapPublisher, Map* pMap, string strSettingPath);
+    Tracking(ORBVocabulary* pVoc, FramePublisher* pFramePublisher, MapPublisher* pMapPublisher, Map* pMap, Stats* statsHelper, string strSettingPath);
 
-    enum eTrackingState{
-        SYSTEM_NOT_READY=-1,
-        NO_IMAGES_YET=0,
-        NOT_INITIALIZED=1,
-        INITIALIZING=2,
-        WORKING=3,
-        LOST=4
+    enum eTrackingState {
+        SYSTEM_NOT_READY = -1,
+        NO_IMAGES_YET = 0,
+        NOT_INITIALIZED = 1,
+        INITIALIZING = 2,
+        WORKING = 3,
+        LOST = 4
     };
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
@@ -73,7 +74,7 @@ public:
     void ForceRelocalisation();
 
     eTrackingState mState;
-    eTrackingState mLastProcessedState;    
+    eTrackingState mLastProcessedState;
 
     // Current Frame
     Frame mCurrentFrame;
@@ -88,6 +89,8 @@ public:
 
     void CheckResetByPublishers();
 
+    void Reset(); //Reset can be called externally
+    void Exit(); //Ensure stats consistent
 
 protected:
     void GrabImage(const sensor_msgs::ImageConstPtr& msg);
@@ -96,13 +99,11 @@ protected:
     void Initialize();
     void CreateInitialMap(cv::Mat &Rcw, cv::Mat &tcw);
 
-    void Reset();
-
     bool TrackPreviousFrame();
     bool TrackWithMotionModel();
 
     bool RelocalisationRequested();
-    bool Relocalisation();    
+    bool Relocalisation();
 
     void UpdateReference();
     void UpdateReferencePoints();
@@ -180,6 +181,10 @@ protected:
 
     // Transfor broadcaster (for visualization in rviz)
     tf::TransformBroadcaster mTfBr;
+
+    //Pointer to statistics
+    Stats* StatsHelper;
+    double mlastLostAt;
 };
 
 } //namespace ORB_SLAM

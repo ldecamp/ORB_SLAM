@@ -41,3 +41,6 @@ ORBextractor.nScoreType: 1
 
 # Constant Velocity Motion Model (0 - disabled, 1 - enabled [recommended])
 UseMotionModel: 1
+
+Statistics.databasePath:/mnt/hgfs/Data/analysis/orb_statistics.db
+Statistics.active:1
