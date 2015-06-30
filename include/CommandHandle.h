@@ -3,6 +3,7 @@
 
 #include "Statistics.h"
 #include "Tracking.h"
+#include "Map.h"
 #include "std_msgs/String.h"
 
 namespace ORB_SLAM {

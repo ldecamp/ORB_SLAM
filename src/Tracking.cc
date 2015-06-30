@@ -179,6 +179,7 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
     }
     catch (cv_bridge::Exception& e)
     {
+        cout << "Exception grabbing frame" << endl;
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
@@ -196,6 +197,13 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
     {
         cv_ptr->image.copyTo(im);
     }
+
+    // double check_frame=cv_ptr->header.stamp.toSec()-mCurrentFrame.mTimeStamp;
+    // if((check_frame-0.02)>0.0){
+    //     cout << "previous: " << mCurrentFrame.mTimeStamp << endl;
+    //     cout << "current: " << cv_ptr->header.stamp.toSec() << endl;
+    //     cout << "lost "<< check_frame/0.02 <<" frames" << endl;
+    // }
 
     if (mState == WORKING || mState == LOST)
         mCurrentFrame = Frame(im, cv_ptr->header.stamp.toSec(), mpORBextractor, mpORBVocabulary, mK, mDistCoef);
@@ -255,14 +263,12 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         {
             mpMapPublisher->SetCurrentCameraPose(mCurrentFrame.mTcw);
 
-            bool isKF = false;
             if (NeedNewKeyFrame()) {
                 CreateNewKeyFrame();
-                isKF = true;
             }
 
             //Collect stats on frames
-            StatsHelper->saveFrameInfo(mCurrentFrame, isKF);
+            //StatsHelper->saveFrameInfo(mCurrentFrame, isKF);
 
             // We allow points with high innovation (considererd outliers by the Huber Function)
             // pass to the new keyframe, so that bundle adjustment will finally decide
@@ -278,8 +284,10 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         if (bOK)
             mState = WORKING;
         else {
-            if (mlastLostAt == 0)
+            if (mlastLostAt == 0){
                 mlastLostAt = mCurrentFrame.mTimeStamp;
+                StatsHelper->setLostAt(mlastLostAt);
+            }
             mState = LOST;
         }
 
@@ -1110,11 +1118,18 @@ void Tracking::CheckResetByPublishers()
 }
 
 void Tracking::Exit() {
-    if (mlastLostAt != 0) {
-        StatsHelper->updateTrackerLostInfo(mCurrentFrame.mTimeStamp - mlastLostAt);
-        mlastLostAt=0;
+    if (StatsHelper->active) {
+        if (mlastLostAt != 0) {
+            StatsHelper->updateTrackerLostInfo(mCurrentFrame.mTimeStamp - mlastLostAt);
+            mlastLostAt = 0;
+        }
+        vector<ORB_SLAM::KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+        for (unsigned int i = 0; i < vpKFs.size(); i++) {
+            StatsHelper->saveFrameInfo(*vpKFs[i]);
+        }
+        StatsHelper->saveGlobalInfo((long)mCurrentFrame.mTimeStamp); //save global stats
     }
-    StatsHelper->saveGlobalInfo(); //save global stats
+    StatsHelper->saveMap(mpMap->GetAllMapPoints());
 }
 
 } //namespace ORB_SLAM

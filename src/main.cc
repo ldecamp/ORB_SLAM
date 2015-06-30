@@ -57,8 +57,12 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    // Load Settings and Check
-    string strSettingsFile = ros::package::getPath("ORB_SLAM") + "/" + argv[2];
+    //Load ORB Vocabulary
+    string strSettingsFile;
+    if (boost::starts_with(argv[2], "/"))
+        strSettingsFile = argv[2];
+    else
+        strSettingsFile = ros::package::getPath("ORB_SLAM") + "/" + argv[2];
 
     cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
     if (!fsSettings.isOpened())
@@ -94,7 +98,12 @@ int main(int argc, char **argv)
     //Initialize statistics gatherer
     const string dbPath = fsSettings["Statistics.databasePath"];
     int statsActive = fsSettings["Statistics.active"];
-    ORB_SLAM::Stats Statistics(dbPath.c_str(), (statsActive == 0 ? false : true));
+    int saveMap = fsSettings["Statistics.saveMap"];
+    string mapPtsPath = fsSettings["Statistics.saveMapAt"];
+    ORB_SLAM::Stats Statistics(dbPath.c_str(), 
+        (statsActive == 0 ? false : true), 
+        (saveMap == 0 ? false : true),
+        mapPtsPath);
 
     //Create KeyFrame Database
     ORB_SLAM::KeyFrameDatabase Database(Vocabulary);
@@ -155,33 +164,6 @@ int main(int argc, char **argv)
     }
 
     Tracker.Exit();//ensure lost stats ok
-
-    // // Save keyframe poses at the end of the execution
-    // ofstream f;
-
-    // vector<ORB_SLAM::KeyFrame*> vpKFs = World.GetAllKeyFrames();
-    // sort(vpKFs.begin(),vpKFs.end(),ORB_SLAM::KeyFrame::lId);
-
-    // cout << endl << "Saving Keyframe Trajectory to KeyFrameTrajectory.txt" << endl;
-    // string strFile = ros::package::getPath("ORB_SLAM")+"/"+"KeyFrameTrajectory.txt";
-    // f.open(strFile.c_str());
-    // f << fixed;
-
-    // for(size_t i=0; i<vpKFs.size(); i++)
-    // {
-    //     ORB_SLAM::KeyFrame* pKF = vpKFs[i];
-
-    //     if(pKF->isBad())
-    //         continue;
-
-    //     cv::Mat R = pKF->GetRotation().t();
-    //     vector<float> q = ORB_SLAM::Converter::toQuaternion(R);
-    //     cv::Mat t = pKF->GetCameraCenter();
-    //     f << setprecision(6) << pKF->mTimeStamp << setprecision(7) << " " << t.at<float>(0) << " " << t.at<float>(1) << " " << t.at<float>(2)
-    //       << " " << q[0] << " " << q[1] << " " << q[2] << " " << q[3] << endl;
-
-    // }
-    // f.close();
 
     ros::shutdown();
 

@@ -44,3 +44,6 @@ UseMotionModel: 1
 
 Statistics.databasePath:/mnt/hgfs/Data/analysis/orb_statistics.db
 Statistics.active:1
+
+Statistics.saveMapAt:/mnt/hgfs/Data/map_clouds
+Statistics.saveMap:0

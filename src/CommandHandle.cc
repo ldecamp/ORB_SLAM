@@ -28,7 +28,7 @@ void CommandsHandle::Commands_Callback(const std_msgs::String::ConstPtr& msg) {
 	}
 
 	if (iequals(result[0], "SaveAndResetMap")) {
-		Statistics->saveGlobalInfo();
+		Tracker->Exit();
 		Tracker->Reset();
 		return;
 	}
