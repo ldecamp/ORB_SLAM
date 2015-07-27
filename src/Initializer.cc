@@ -109,7 +109,7 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
     // Compute ratio of scores
     float RH = SH/(SH+SF);
 
-    std::cout << "Current RH Score: " << RH << std::endl;
+    // std::cout << "Current RH Score: " << RH << std::endl;
     // 1 is parralax angle value in radian (1 == 60 degrees) (default 1.0)
     // 50 is min feature triangulated
     // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
@@ -298,7 +298,7 @@ cv::Mat Initializer::ComputeF21(const vector<cv::Point2f> &vP1,const vector<cv::
 
     cv::SVDecomp(Fpre,w,u,vt,cv::SVD::MODIFY_A | cv::SVD::FULL_UV);
 
-    w.at<float>(2,2)=0;
+    w.at<float>(2)=0;
 
     return  u*cv::Mat::diag(w)*vt;
 }

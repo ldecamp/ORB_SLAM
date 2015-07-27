@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     boost::thread localMappingThread(&ORB_SLAM::LocalMapping::Run, &LocalMapper);
 
     //Initialize the Loop Closing Thread and launch
-    ORB_SLAM::LoopClosing LoopCloser(&World, &Database, &Vocabulary);
+    ORB_SLAM::LoopClosing LoopCloser(&World, &Database, &Vocabulary, &Statistics);
     boost::thread loopClosingThread(&ORB_SLAM::LoopClosing::Run, &LoopCloser);
 
     //Set pointers between threads
@@ -163,7 +163,7 @@ int main(int argc, char **argv)
         ros::spinOnce();
     }
 
-    Tracker.Exit();//ensure lost stats ok
+    // Tracker.Exit();//ensure lost stats ok
 
     ros::shutdown();
 

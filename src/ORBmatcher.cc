@@ -38,7 +38,8 @@ namespace ORB_SLAM
 {
 
 const int ORBmatcher::TH_HIGH = 100;
-const int ORBmatcher::TH_LOW = 50;
+const int ORBmatcher::TH_LOW = 40;
+const int ORBmatcher::TH_LOW_LOOP = 50;
 const int ORBmatcher::HISTO_LENGTH = 30;
 
 
@@ -221,7 +222,7 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
                     }
                 }
 
-                if(bestDist1<=TH_LOW)
+                if(bestDist1<=TH_LOW_LOOP)
                 {
                     if(static_cast<float>(bestDist1)<mfNNratio*static_cast<float>(bestDist2))
                     {
@@ -788,7 +789,7 @@ int ORBmatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &
                         }
                     }
 
-                    if(bestDist1<TH_LOW)
+                    if(bestDist1<TH_LOW_LOOP)
                     {
                         if(static_cast<float>(bestDist1)<mfNNratio*static_cast<float>(bestDist2))
                         {

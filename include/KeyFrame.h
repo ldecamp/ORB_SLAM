@@ -196,11 +196,16 @@ protected:
     // KeyPoints, Descriptors, MapPoints vectors (all associated by an index)
     std::vector<cv::KeyPoint> mvKeys;
     std::vector<cv::KeyPoint> mvKeysUn;
+    // ORB Descriptors 
     cv::Mat mDescriptors;
+    //Stores SURF descriptor for relocalisation and loop closure.
+    cv::Mat mSurfDescriptors;
+
     std::vector<MapPoint*> mvpMapPoints;
 
     // BoW
     KeyFrameDatabase* mpKeyFrameDB;
+    //Need to replace with SURF Vocabulary
     ORBVocabulary* mpORBvocabulary;
     DBoW2::FeatureVector mFeatVec;
 

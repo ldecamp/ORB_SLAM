@@ -27,7 +27,7 @@
 #include "ORBVocabulary.h"
 #include "Tracking.h"
 #include <boost/thread.hpp>
-
+#include "Statistics.h"
 #include "KeyFrameDatabase.h"
 
 #include "Thirdparty/g2o/g2o/types/sim3/types_seven_dof_expmap.h"
@@ -50,7 +50,8 @@ public:
 
 public:
 
-    LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc);
+    //Replace with SURFVocabulary
+    LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc, Stats* statsHelper);
 
     void SetTracker(Tracking* pTracker);
 
@@ -82,6 +83,7 @@ protected:
     Tracking* mpTracker;
 
     KeyFrameDatabase* mpKeyFrameDB;
+    //Replace with SURF Vocabulary
     ORBVocabulary* mpORBVocabulary;
 
     LocalMapping *mpLocalMapper;
@@ -108,6 +110,8 @@ protected:
     double mScale_cw;
 
     long unsigned int mLastLoopKFid;
+
+    Stats* StatsHelper;
 };
 
 } //namespace ORB_SLAM

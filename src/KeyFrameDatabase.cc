@@ -116,6 +116,8 @@ vector<KeyFrame*> KeyFrameDatabase::DetectLoopCandidates(KeyFrame* pKF, float mi
             maxCommonWords=(*lit)->mnLoopWords;
     }
 
+    //Play with this parameter as well see how it affect how loop are closed.
+    //Might make process way more expensive so
     int minCommonWords = maxCommonWords*0.8f;
 
     int nscores=0;
@@ -130,7 +132,6 @@ vector<KeyFrame*> KeyFrameDatabase::DetectLoopCandidates(KeyFrame* pKF, float mi
             nscores++;
 
             float si = mpVoc->score(pKF->mBowVec,pKFi->mBowVec);
-
             pKFi->mLoopScore = si;
             if(si>=minScore)
                 lScoreAndMatch.push_back(make_pair(si,pKFi));
@@ -190,7 +191,6 @@ vector<KeyFrame*> KeyFrameDatabase::DetectLoopCandidates(KeyFrame* pKF, float mi
             }
         }
     }
-
 
     return vpLoopCandidates;
 }

@@ -47,6 +47,7 @@ public:
     Frame(const Frame &frame);
     Frame(cv::Mat &im, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef);
 
+    //Need to replace with SURF Vocabulary and descriptor extractor.
     ORBVocabulary* mpORBvocabulary;
     ORBextractor* mpORBextractor;
 
@@ -77,6 +78,10 @@ public:
 
     // ORB descriptor, each row associated to a keypoint
     cv::Mat mDescriptors;
+
+    //Stores SURF descriptor for relocalisation and loop closure.
+    cv::Mat mSurfDescriptors;
+
 
     // MapPoints associated to keypoints, NULL pointer if not association
     std::vector<MapPoint*> mvpMapPoints;

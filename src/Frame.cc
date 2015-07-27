@@ -41,7 +41,8 @@ Frame::Frame(const Frame &frame)
      mvpMapPoints(frame.mvpMapPoints), mvbOutlier(frame.mvbOutlier),
      mfGridElementWidthInv(frame.mfGridElementWidthInv), mfGridElementHeightInv(frame.mfGridElementHeightInv),mnId(frame.mnId),
      mpReferenceKF(frame.mpReferenceKF), mnScaleLevels(frame.mnScaleLevels), mfScaleFactor(frame.mfScaleFactor),
-     mvScaleFactors(frame.mvScaleFactors), mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2)
+     mvScaleFactors(frame.mvScaleFactors), mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2), 
+     mSurfDescriptors(frame.mSurfDescriptors)
 {
     for(int i=0;i<FRAME_GRID_COLS;i++)
         for(int j=0; j<FRAME_GRID_ROWS; j++)
@@ -123,7 +124,6 @@ Frame::Frame(cv::Mat &im_, const double &timeStamp, ORBextractor* extractor, ORB
 
 
     mvbOutlier = vector<bool>(N,false);
-
 }
 
 void Frame::UpdatePoseMatrices()
@@ -280,6 +280,9 @@ void Frame::ComputeBoW()
 {
     if(mBowVec.empty())
     {
+        //Compute Surf features. 
+
+        //Compute BoW
         vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
         mpORBvocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,4);
     }

@@ -138,41 +138,57 @@ void Stats::saveGlobalInfo(long video_duration) {
 	char *zErrMsg = 0;
 	boost::format qry(UPDATE_GLOBAL);
 
- 	stringstream lostDetails;
-	unsigned int N=lostAt.size();
+	stringstream lostDetails;
+	unsigned int N = lostAt.size();
 	for (unsigned int i = 0; i < N; ++i)
 	{
+		if(lostAt[i]==0.0L)
+			continue;
 		lostDetails << lostAt[i];
-		if(i!=N-1)
-			lostDetails<<",";
+		if (i != N - 1)
+			lostDetails << ";";
 	}
 
-	qry % id % initialisedAt % timesLost % totalTimeLost % maxTimeLost % (video_duration*1000L) % lostDetails.str();
+	qry % id
+	% initialisedAt
+	% timesLost
+	% totalTimeLost
+	% maxTimeLost
+	% (video_duration * 1000L)
+	% lostDetails.str();
 	cout << "sql: " << qry.str() << endl;
 	//update global config for entry
 	int rc = sqlite3_exec(db, qry.str().c_str(), db_callback, 0, &zErrMsg);
 	if ( rc != SQLITE_OK ) {
 		cout << "There was an error saving global config. " << endl;
 	}
-
-	lostDetails.clear();
+	reset();
 }
 
-void Stats::saveMap(vector<ORB_SLAM::MapPoint*> mapPoints){
+void Stats::saveMap(vector<ORB_SLAM::MapPoint*> mapPoints) {
 	if (dosaveMap) {
-        ofstream f;
+		ofstream f;
 
-        cout << "Saving map points to ASCII file" << endl;
-        string mapPtsPath = mapPathPrefix + "/" + id + ".csv";
-        f.open(mapPtsPath.c_str());
-        f << fixed;
+		cout << "Saving map points to ASCII file" << endl;
+		string mapPtsPath = mapPathPrefix + "/" + id + ".csv";
+		f.open(mapPtsPath.c_str());
+		f << fixed;
 
-        for (size_t i = 0; i < mapPoints.size(); i++)
-        {
-            ORB_SLAM::MapPoint* mPt = mapPoints[i];
-            cv::Mat wC = mPt->GetWorldPos();
-            f << wC.at<float>(0) << ", " << wC.at<float>(1) << ", " << wC.at<float>(2) << endl;
-        }
-        f.close();
-    }
+		for (size_t i = 0; i < mapPoints.size(); i++)
+		{
+			ORB_SLAM::MapPoint* mPt = mapPoints[i];
+			cv::Mat wC = mPt->GetWorldPos();
+			f << wC.at<float>(0) << ", " << wC.at<float>(1) << ", " << wC.at<float>(2) << endl;
+		}
+		f.close();
+	}
+}
+
+void Stats::reset() {
+	//reset counter once saved
+	lostAt.clear();
+	lostAt.resize(0);
+	timesLost = 0;
+	totalTimeLost = 0;
+	maxTimeLost = 0;
 }

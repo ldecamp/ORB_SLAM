@@ -59,6 +59,7 @@ public:
 
 protected:
 
+  // Need to replace with SURF vocabulary
   // Associated vocabulary
   const ORBVocabulary* mpVoc;
 

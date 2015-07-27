@@ -284,7 +284,7 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         if (bOK)
             mState = WORKING;
         else {
-            if (mlastLostAt == 0){
+            if (mlastLostAt == 0) {
                 mlastLostAt = mCurrentFrame.mTimeStamp;
                 StatsHelper->setLostAt(mlastLostAt);
             }
@@ -297,6 +297,7 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
             if (mpMap->KeyFramesInMap() <= 5)
             {
                 Reset();
+                StatsHelper->reset();
                 return;
             }
         }
@@ -885,9 +886,11 @@ bool Tracking::Relocalisation()
 
     const int nKFs = vpCandidateKFs.size();
 
+    cout << "number of keyframe candidates: " << nKFs << endl;
+
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
-    ORBmatcher matcher(0.75, true);
+    ORBmatcher matcher(0.9, true);
 
     vector<PnPsolver*> vpPnPsolvers;
     vpPnPsolvers.resize(nKFs);
@@ -908,6 +911,7 @@ bool Tracking::Relocalisation()
         else
         {
             int nmatches = matcher.SearchByBoW(pKF, mCurrentFrame, vvpMapPointMatches[i]);
+            cout << "Number bow match: " << nmatches << endl;
             if (nmatches < 15)
             {
                 vbDiscarded[i] = true;
@@ -946,6 +950,7 @@ bool Tracking::Relocalisation()
             // If Ransac reachs max. iterations discard keyframe
             if (bNoMore)
             {
+                cout << "discarded cause ransac end" << endl;
                 vbDiscarded[i] = true;
                 nCandidates--;
             }
@@ -970,6 +975,7 @@ bool Tracking::Relocalisation()
 
                 int nGood = Optimizer::PoseOptimization(&mCurrentFrame);
 
+                cout << "n good: " << nGood << endl;
                 if (nGood < 10)
                     continue;
 
@@ -981,6 +987,8 @@ bool Tracking::Relocalisation()
                 if (nGood < 50)
                 {
                     int nadditional = matcher2.SearchByProjection(mCurrentFrame, vpCandidateKFs[i], sFound, 10, 100);
+
+                    cout << "n Additional: " << nadditional << endl;
 
                     if (nadditional + nGood >= 50)
                     {
@@ -1009,7 +1017,7 @@ bool Tracking::Relocalisation()
                     }
                 }
 
-
+                cout << "N goods: " << nGood << endl;
                 // If the pose is supported by enough inliers stop ransacs and continue
                 if (nGood >= 50)
                 {
@@ -1118,6 +1126,11 @@ void Tracking::CheckResetByPublishers()
 }
 
 void Tracking::Exit() {
+    cout << "Executing global ba..." << endl;
+    Optimizer::GlobalBundleAdjustemnt(mpMap, 50);
+    mpMapPublisher->Refresh();
+    cout << "Executing global ba done..." << endl;
+
     if (StatsHelper->active) {
         if (mlastLostAt != 0) {
             StatsHelper->updateTrackerLostInfo(mCurrentFrame.mTimeStamp - mlastLostAt);

@@ -27,6 +27,7 @@ public:
 	string getId(){
 		return id;
 	}
+	void reset();
 
 protected:
 	long initialisedAt;

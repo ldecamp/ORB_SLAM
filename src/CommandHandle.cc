@@ -22,14 +22,22 @@ void CommandsHandle::Commands_Callback(const std_msgs::String::ConstPtr& msg) {
 		return;
 	}
 
+	if (iequals(result[0], "SaveMap")) {
+		Tracker->Exit();
+		Statistics->reset();
+		return;
+	}
+
 	if (iequals(result[0], "ResetMap")) {
 		Tracker->Reset();
+		Statistics->reset();
 		return;
 	}
 
 	if (iequals(result[0], "SaveAndResetMap")) {
 		Tracker->Exit();
 		Tracker->Reset();
+		Statistics->reset();
 		return;
 	}
 
