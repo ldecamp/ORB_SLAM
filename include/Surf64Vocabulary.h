@@ -18,59 +18,19 @@
 * along with ORB-SLAM. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef KEYFRAMEDATABASE_H
-#define KEYFRAMEDATABASE_H
 
-#include <vector>
-#include <list>
-#include <set>
+#ifndef SURF64VOCABULARY_H
+#define SURF64VOCABULARY_H
 
-#include "KeyFrame.h"
-#include "Frame.h"
-//#include "ORBVocabulary.h"
-#include "Surf64Vocabulary.h"
-
-#include<boost/thread.hpp>
-
+#include"Thirdparty/DBoW2/DBoW2/FSurf64.h"
+#include"Thirdparty/DBoW2/DBoW2/TemplatedVocabulary.h"
 
 namespace ORB_SLAM
 {
 
-class KeyFrame;
-class Frame;
-
-
-class KeyFrameDatabase
-{
-public:
-
-    KeyFrameDatabase(const Surf64Vocabulary &voc);
-
-   void add(KeyFrame* pKF);
-
-   void erase(KeyFrame* pKF);
-
-   void clear();
-
-   // Loop Detection
-   std::vector<KeyFrame *> DetectLoopCandidates(KeyFrame* pKF, float minScore);
-
-   // Relocalisation
-   std::vector<KeyFrame*> DetectRelocalisationCandidates(Frame* F);
-
-protected:
-
-  // Associated vocabulary
-  const Surf64Vocabulary* mpVoc;
-  // const ORBVocabulary* mpVoc;
-
-  // Inverted file
-  std::vector<list<KeyFrame*> > mvInvertedFile;
-
-  // Mutex
-  boost::mutex mMutex;
-};
+typedef DBoW2::TemplatedVocabulary<DBoW2::FSurf64::TDescriptor, DBoW2::FSurf64> 
+  Surf64Vocabulary;
 
 } //namespace ORB_SLAM
 
-#endif
+#endif // SURF64VOCABULARY_H

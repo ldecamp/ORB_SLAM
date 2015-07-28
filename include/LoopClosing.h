@@ -24,7 +24,8 @@
 #include "KeyFrame.h"
 #include "LocalMapping.h"
 #include "Map.h"
-#include "ORBVocabulary.h"
+//#include "ORBVocabulary.h"
+#include "Surf64Vocabulary.h"
 #include "Tracking.h"
 #include <boost/thread.hpp>
 #include "Statistics.h"
@@ -51,7 +52,7 @@ public:
 public:
 
     //Replace with SURFVocabulary
-    LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc, Stats* statsHelper);
+    LoopClosing(Map* pMap, KeyFrameDatabase* pDB, Surf64Vocabulary* pVoc, Stats* statsHelper);
 
     void SetTracker(Tracking* pTracker);
 
@@ -84,8 +85,9 @@ protected:
 
     KeyFrameDatabase* mpKeyFrameDB;
     //Replace with SURF Vocabulary
-    ORBVocabulary* mpORBVocabulary;
-
+    //ORBVocabulary* mpORBVocabulary;
+    Surf64Vocabulary* mpSurfVocabulary;
+    
     LocalMapping *mpLocalMapper;
 
     std::list<KeyFrame*> mlpLoopKeyFrameQueue;

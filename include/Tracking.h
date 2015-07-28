@@ -31,7 +31,8 @@
 #include "LocalMapping.h"
 #include "LoopClosing.h"
 #include "Frame.h"
-#include "ORBVocabulary.h"
+//#include "ORBVocabulary.h"
+#include "Surf64Vocabulary.h"
 #include "KeyFrameDatabase.h"
 #include "ORBextractor.h"
 #include "Initializer.h"
@@ -53,7 +54,7 @@ class Tracking
 {
 
 public:
-    Tracking(ORBVocabulary* pVoc, FramePublisher* pFramePublisher, MapPublisher* pMapPublisher, Map* pMap, Stats* statsHelper, string strSettingPath);
+    Tracking(Surf64Vocabulary* pVoc, FramePublisher* pFramePublisher, MapPublisher* pMapPublisher, Map* pMap, Stats* statsHelper, string strSettingPath);
 
     enum eTrackingState {
         SYSTEM_NOT_READY = -1,
@@ -125,7 +126,8 @@ protected:
     ORBextractor* mpIniORBextractor;
 
     //BoW
-    ORBVocabulary* mpORBVocabulary;
+    //ORBVocabulary* mpORBVocabulary;
+    Surf64Vocabulary* mpSurfVocabulary;
     KeyFrameDatabase* mpKeyFrameDB;
 
     // Initalization

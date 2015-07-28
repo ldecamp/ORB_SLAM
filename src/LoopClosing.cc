@@ -40,8 +40,8 @@
 namespace ORB_SLAM
 {
 
-LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, ORBVocabulary *pVoc, Stats* statsHelper):
-    mbResetRequested(false), mpMap(pMap), mpKeyFrameDB(pDB), mpORBVocabulary(pVoc), mLastLoopKFid(0), StatsHelper(statsHelper)
+LoopClosing::LoopClosing(Map *pMap, KeyFrameDatabase *pDB, Surf64Vocabulary *pVoc, Stats* statsHelper):
+    mbResetRequested(false), mpMap(pMap), mpKeyFrameDB(pDB), mpSurfVocabulary(pVoc), mLastLoopKFid(0), StatsHelper(statsHelper)
 {
     //Tweak threshold to change the number of covisibility frame r
     //default 3
@@ -133,7 +133,7 @@ bool LoopClosing::DetectLoop()
             continue;
         DBoW2::BowVector BowVec = pKF->GetBowVector();
 
-        float score = mpORBVocabulary->score(CurrentBowVec, BowVec);
+        float score = mpSurfVocabulary->score(CurrentBowVec, BowVec);
 
         if (score < minScore)
             minScore = score;

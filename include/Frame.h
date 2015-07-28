@@ -24,11 +24,13 @@
 #include "MapPoint.h"
 #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
-#include "ORBVocabulary.h"
+//#include "ORBVocabulary.h"
+#include "Surf64Vocabulary.h"
 #include "KeyFrame.h"
 #include "ORBextractor.h"
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/nonfree/features2d.hpp>
 
 namespace ORB_SLAM
 {
@@ -45,11 +47,13 @@ class Frame
 public:
     Frame();
     Frame(const Frame &frame);
-    Frame(cv::Mat &im, const double &timeStamp, ORBextractor* extractor, ORBVocabulary* voc, cv::Mat &K, cv::Mat &distCoef);
+    Frame(cv::Mat &im, const double &timeStamp, ORBextractor* extractor, Surf64Vocabulary* voc, cv::Mat &K, cv::Mat &distCoef);
 
     //Need to replace with SURF Vocabulary and descriptor extractor.
-    ORBVocabulary* mpORBvocabulary;
     ORBextractor* mpORBextractor;
+
+    //ORBVocabulary* mpORBvocabulary;
+    Surf64Vocabulary* mpSurfvocabulary;
 
     // Frame image
     cv::Mat im;
@@ -129,6 +133,10 @@ public:
     static int mnMaxY;
 
     static bool mbInitialComputations;
+
+//protected:
+    // Extract SURF descriptors for reloc + loop from ORB keypoints locations
+    //static cv::SurfDescriptorExtractor mbSurfExtractor;
 
 
 private:

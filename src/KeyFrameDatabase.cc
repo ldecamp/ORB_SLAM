@@ -29,7 +29,7 @@ using namespace std;
 namespace ORB_SLAM
 {
 
-KeyFrameDatabase::KeyFrameDatabase (const ORBVocabulary &voc):
+KeyFrameDatabase::KeyFrameDatabase (const Surf64Vocabulary &voc):
     mpVoc(&voc)
 {
     mvInvertedFile.resize(voc.size());

@@ -155,6 +155,7 @@ bool ORBmatcher::CheckDistEpipolarLine(const cv::KeyPoint &kp1,const cv::KeyPoin
 
 int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPointMatches)
 {
+    cout << "Searching BoW Reloc" << endl;
     vector<MapPoint*> vpMapPointsKF = pKF->GetMapPointMatches();
 
     vpMapPointMatches = vector<MapPoint*>(F.mvpMapPoints.size(),static_cast<MapPoint*>(NULL));
@@ -193,11 +194,11 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
                 if(pMP->isBad())
                     continue;
 
-                cv::Mat dKF= pKF->GetDescriptor(realIdxKF);
+                cv::Mat dKF= pKF->GetSurfDescriptor(realIdxKF);
 
-                int bestDist1=INT_MAX;
+                float bestDist1=INT_MAX;
                 int bestIdxF =-1 ;
-                int bestDist2=INT_MAX;
+                float bestDist2=INT_MAX;
 
                 for(size_t iF=0, iendF=vIndicesF.size(); iF<iendF; iF++)
                 {
@@ -206,9 +207,10 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
                     if(vpMapPointMatches[realIdxF])
                         continue;
 
-                    cv::Mat dF = F.mDescriptors.row(realIdxF).clone();
+                    cv::Mat dF = F.mSurfDescriptors.row(realIdxF).clone();
 
-                    const int dist =  DescriptorDistance(dKF,dF);
+                    //TODO: Change descriptor distance function to use SURF related.
+                    const float dist =  SurfDescriptorDistance(dKF,dF);
 
                     if(dist<bestDist1)
                     {
@@ -224,7 +226,7 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
 
                 if(bestDist1<=TH_LOW_LOOP)
                 {
-                    if(static_cast<float>(bestDist1)<mfNNratio*static_cast<float>(bestDist2))
+                    if(bestDist1<mfNNratio*bestDist2)
                     {
                         vpMapPointMatches[bestIdxF]=pMP;
 
@@ -715,15 +717,16 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
 
 int ORBmatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches12)
 {
+    cout << "Searching BoW Keyframe" << endl;
     vector<cv::KeyPoint> vKeysUn1 = pKF1->GetKeyPointsUn();
     DBoW2::FeatureVector vFeatVec1 = pKF1->GetFeatureVector();
     vector<MapPoint*> vpMapPoints1 = pKF1->GetMapPointMatches();
-    cv::Mat Descriptors1 = pKF1->GetDescriptors();
+    cv::Mat Descriptors1 = pKF1->GetSurfDescriptors();
 
     vector<cv::KeyPoint> vKeysUn2 = pKF2->GetKeyPointsUn();
     DBoW2::FeatureVector vFeatVec2 = pKF2->GetFeatureVector();
     vector<MapPoint*> vpMapPoints2 = pKF2->GetMapPointMatches();
-    cv::Mat Descriptors2 = pKF2->GetDescriptors();
+    cv::Mat Descriptors2 = pKF2->GetSurfDescriptors();
 
     vpMatches12 = vector<MapPoint*>(vpMapPoints1.size(),static_cast<MapPoint*>(NULL));
     vector<bool> vbMatched2(vpMapPoints2.size(),false);
@@ -757,9 +760,9 @@ int ORBmatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &
 
                     cv::Mat d1 = Descriptors1.row(idx1);
 
-                    int bestDist1=INT_MAX;
+                    float bestDist1=INT_MAX;
                     int bestIdx2 =-1 ;
-                    int bestDist2=INT_MAX;
+                    float bestDist2=INT_MAX;
 
                     for(size_t i2=0, iend2=f2it->second.size(); i2<iend2; i2++)
                     {
@@ -774,8 +777,8 @@ int ORBmatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &
                             continue;
 
                         cv::Mat d2 = Descriptors2.row(idx2);
-
-                        int dist = DescriptorDistance(d1,d2);
+                        //TODO: Change descriptor distance function to use SURF related.
+                        float dist = SurfDescriptorDistance(d1,d2);
 
                         if(dist<bestDist1)
                         {
@@ -791,7 +794,7 @@ int ORBmatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &
 
                     if(bestDist1<TH_LOW_LOOP)
                     {
-                        if(static_cast<float>(bestDist1)<mfNNratio*static_cast<float>(bestDist2))
+                        if(bestDist1<mfNNratio*bestDist2)
                         {
                             vpMatches12[idx1]=vpMapPoints2[bestIdx2];
                             vbMatched2[bestIdx2]=true;
@@ -1810,4 +1813,18 @@ int ORBmatcher::DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
     return dist;
 }
 
+//Euclidian distance
+float ORBmatcher::SurfDescriptorDistance(const cv::Mat &a, const cv::Mat &b)
+{
+    const int *pa = a.ptr<int32_t>();
+    const int *pb = b.ptr<int32_t>();
+
+    float dist=0;
+    for (int i = 0; i < a.cols; i++, pa++, pb++) {
+        dist += pow(*pa - *pb,2);
+    }
+    return sqrt(dist);
+}
+
 } //namespace ORB_SLAM
+

@@ -33,7 +33,8 @@
 #include "LocalMapping.h"
 #include "LoopClosing.h"
 #include "KeyFrameDatabase.h"
-#include "ORBVocabulary.h"
+//#include "ORBVocabulary.h"
+#include "Surf64Vocabulary.h"
 #include "Statistics.h"
 #include "CommandHandle.h"
 #include "Converter.h"
@@ -91,7 +92,8 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    ORB_SLAM::ORBVocabulary Vocabulary;
+    //ORB_SLAM::ORBVocabulary Vocabulary;
+    ORB_SLAM::Surf64Vocabulary Vocabulary;
     Vocabulary.load(fsVoc);
     cout << "Vocabulary loaded!" << endl << endl;
 

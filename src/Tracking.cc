@@ -43,8 +43,8 @@ namespace ORB_SLAM
 {
 
 
-Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPublisher *pMapPublisher, Map *pMap, Stats* statsHelper, string strSettingPath):
-    mState(NO_IMAGES_YET), mpORBVocabulary(pVoc), mpFramePublisher(pFramePublisher), mpMapPublisher(pMapPublisher), mpMap(pMap),
+Tracking::Tracking(Surf64Vocabulary* pVoc, FramePublisher *pFramePublisher, MapPublisher *pMapPublisher, Map *pMap, Stats* statsHelper, string strSettingPath):
+    mState(NO_IMAGES_YET), mpSurfVocabulary(pVoc), mpFramePublisher(pFramePublisher), mpMapPublisher(pMapPublisher), mpMap(pMap),
     mnLastRelocFrameId(0), mbPublisherStopped(false), mbReseting(false), mbForceRelocalisation(false), mbMotionModel(false), StatsHelper(statsHelper)
 {
     // Load camera parameters from settings file
@@ -206,9 +206,9 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
     // }
 
     if (mState == WORKING || mState == LOST)
-        mCurrentFrame = Frame(im, cv_ptr->header.stamp.toSec(), mpORBextractor, mpORBVocabulary, mK, mDistCoef);
+        mCurrentFrame = Frame(im, cv_ptr->header.stamp.toSec(), mpORBextractor, mpSurfVocabulary, mK, mDistCoef);
     else
-        mCurrentFrame = Frame(im, cv_ptr->header.stamp.toSec(), mpIniORBextractor, mpORBVocabulary, mK, mDistCoef);
+        mCurrentFrame = Frame(im, cv_ptr->header.stamp.toSec(), mpIniORBextractor, mpSurfVocabulary, mK, mDistCoef);
 
     // Depending on the state of the Tracker we perform different tasks
 
@@ -243,10 +243,12 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
                 if (!bOK)
                     bOK = TrackPreviousFrame();
             }
+            cout << "Working no reloc: " << bOK << endl;
         }
         else
         {
             bOK = Relocalisation();
+            cout << "Working reloc " << bOK << endl;
             //if Relocalised update time when lost
             if (bOK && mlastLostAt != 0) {
                 StatsHelper->updateTrackerLostInfo(mCurrentFrame.mTimeStamp - mlastLostAt);
@@ -255,8 +257,10 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         }
 
         // If we have an initial estimation of the camera pose and matching. Track the local map.
-        if (bOK)
+        if (bOK){
             bOK = TrackLocalMap();
+            cout << "Track local " << bOK << endl;
+        }
 
         // If tracking were good, check if we insert a keyframe
         if (bOK)
@@ -634,6 +638,7 @@ bool Tracking::TrackLocalMap()
                 mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
         }
 
+    cout << "N inliers: " << mnMatchesInliers << endl;
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     if (mCurrentFrame.mnId < mnLastRelocFrameId + mMaxFrames && mnMatchesInliers < 50)

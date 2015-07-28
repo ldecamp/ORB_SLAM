@@ -33,7 +33,8 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     mnLoopQuery(0), mnRelocQuery(0),fx(F.fx), fy(F.fy), cx(F.cx), cy(F.cy), mBowVec(F.mBowVec),
     im(F.im), mnMinX(F.mnMinX), mnMinY(F.mnMinY), mnMaxX(F.mnMaxX), mnMaxY(F.mnMaxY), mK(F.mK),
     mvKeys(F.mvKeys), mvKeysUn(F.mvKeysUn), mDescriptors(F.mDescriptors.clone()),
-    mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB), mpORBvocabulary(F.mpORBvocabulary), mFeatVec(F.mFeatVec),
+    mSurfDescriptors(F.mSurfDescriptors.clone()),
+    mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB), mpSurfvocabulary(F.mpSurfvocabulary), mFeatVec(F.mFeatVec),
     mbFirstConnection(true), mpParent(NULL), mbNotErase(false), mbToBeErased(false), mbBad(false),
     mnScaleLevels(F.mnScaleLevels), mvScaleFactors(F.mvScaleFactors), mvLevelSigma2(F.mvLevelSigma2),
     mvInvLevelSigma2(F.mvInvLevelSigma2), mpMap(pMap)
@@ -56,11 +57,16 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
 void KeyFrame::ComputeBoW()
 {
     if(mBowVec.empty() || mFeatVec.empty())
-    {
-        vector<cv::Mat> vCurrentDesc = Converter::toDescriptorVector(mDescriptors);
+    {   
+        if (mSurfDescriptors.empty()) {
+            // Extract SURF descriptors for reloc + loop from ORB keypoints locations
+            static cv::SurfDescriptorExtractor mbSurfExtractor;
+            mbSurfExtractor.compute(im, mvKeys, mSurfDescriptors);
+        }
+        std::vector<std::vector<float> > vCurrentDesc = Converter::toSurfDescriptorVector(mSurfDescriptors);
         // Feature vector associate features with nodes in the 4th level (from leaves up)
         // We assume the vocabulary tree has 6 levels, change the 4 otherwise
-        mpORBvocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,4);
+        mpSurfvocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,4);
     }
 }
 
@@ -291,9 +297,19 @@ cv::Mat KeyFrame::GetDescriptor(const size_t &idx)
     return mDescriptors.row(idx).clone();
 }
 
+cv::Mat KeyFrame::GetSurfDescriptor(const size_t &idx)
+{
+    return mSurfDescriptors.row(idx).clone();
+}
+
 cv::Mat KeyFrame::GetDescriptors()
 {
     return mDescriptors.clone();
+}
+
+cv::Mat KeyFrame::GetSurfDescriptors()
+{
+    return mSurfDescriptors.clone();
 }
 
 vector<cv::KeyPoint> KeyFrame::GetKeyPoints() const

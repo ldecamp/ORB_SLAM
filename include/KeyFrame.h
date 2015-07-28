@@ -25,12 +25,12 @@
 #include "MapPoint.h"
 #include "Thirdparty/DBoW2/DBoW2/BowVector.h"
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
-#include "ORBVocabulary.h"
+//#include "ORBVocabulary.h"
+#include "Surf64Vocabulary.h"
 #include "Frame.h"
 #include "KeyFrameDatabase.h"
 
-#include<boost/thread.hpp>
-
+#include <boost/thread.hpp>
 
 namespace ORB_SLAM
 {
@@ -100,10 +100,12 @@ public:
     // KeyPoint functions
     cv::KeyPoint GetKeyPointUn(const size_t &idx) const;
     cv::Mat GetDescriptor(const size_t &idx);
+    cv::Mat GetSurfDescriptor(const size_t &idx);
     int GetKeyPointScaleLevel(const size_t &idx) const;
     std::vector<cv::KeyPoint> GetKeyPoints() const;
     std::vector<cv::KeyPoint> GetKeyPointsUn() const;
     cv::Mat GetDescriptors();
+    cv::Mat GetSurfDescriptors();
     std::vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r) const;
 
     // Image
@@ -180,7 +182,6 @@ public:
 
 
 protected:
-
     // SE3 Pose and camera center
     cv::Mat Tcw;
     cv::Mat Ow;
@@ -206,7 +207,8 @@ protected:
     // BoW
     KeyFrameDatabase* mpKeyFrameDB;
     //Need to replace with SURF Vocabulary
-    ORBVocabulary* mpORBvocabulary;
+    //ORBVocabulary* mpORBvocabulary;
+    Surf64Vocabulary* mpSurfvocabulary;
     DBoW2::FeatureVector mFeatVec;
 
 

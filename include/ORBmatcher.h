@@ -43,6 +43,9 @@ public:
     // Computes the Hamming distance between two ORB descriptors
     static int DescriptorDistance(const cv::Mat &a, const cv::Mat &b);
 
+    // Computes the distance between two Surf descriptors using euclidian distance
+    static float SurfDescriptorDistance(const cv::Mat &a, const cv::Mat &b);
+
     // Search matches between Frame keypoints and projected MapPoints. Returns number of matches
     // Used to track the local map (Tracking)
     int SearchByProjection(Frame &F, const std::vector<MapPoint*> &vpMapPoints, const float th=3);

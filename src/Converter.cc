@@ -35,6 +35,20 @@ std::vector<cv::Mat> Converter::toDescriptorVector(const cv::Mat &Descriptors)
     return vDesc;
 }
 
+std::vector<std::vector<float> > Converter::toSurfDescriptorVector(const cv::Mat &Descriptors){
+    std::vector<std::vector<float> > out;
+    out.resize(Descriptors.rows);
+    int L = Descriptors.cols;
+    for (int j = 0; j < Descriptors.rows; j++) {
+        cv::Mat d  = Descriptors.row(j);
+        out[j].resize(L);
+        for(int r=0;r<Descriptors.cols;r++){
+            out[j][r] = d.at<float>(r);
+        }
+    }
+    return out;
+}
+
 g2o::SE3Quat Converter::toSE3Quat(const cv::Mat &cvT)
 {
     Eigen::Matrix<double, 3, 3> R;
