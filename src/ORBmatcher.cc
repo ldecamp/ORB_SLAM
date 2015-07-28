@@ -155,7 +155,6 @@ bool ORBmatcher::CheckDistEpipolarLine(const cv::KeyPoint &kp1,const cv::KeyPoin
 
 int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPointMatches)
 {
-    cout << "Searching BoW Reloc" << endl;
     vector<MapPoint*> vpMapPointsKF = pKF->GetMapPointMatches();
 
     vpMapPointMatches = vector<MapPoint*>(F.mvpMapPoints.size(),static_cast<MapPoint*>(NULL));
@@ -211,7 +210,7 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
 
                     //TODO: Change descriptor distance function to use SURF related.
                     const float dist =  SurfDescriptorDistance(dKF,dF);
-
+                    
                     if(dist<bestDist1)
                     {
                         bestDist2=bestDist1;
@@ -717,7 +716,6 @@ int ORBmatcher::SearchForInitialization(Frame &F1, Frame &F2, vector<cv::Point2f
 
 int ORBmatcher::SearchByBoW(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint *> &vpMatches12)
 {
-    cout << "Searching BoW Keyframe" << endl;
     vector<cv::KeyPoint> vKeysUn1 = pKF1->GetKeyPointsUn();
     DBoW2::FeatureVector vFeatVec1 = pKF1->GetFeatureVector();
     vector<MapPoint*> vpMapPoints1 = pKF1->GetMapPointMatches();
@@ -1816,14 +1814,15 @@ int ORBmatcher::DescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 //Euclidian distance
 float ORBmatcher::SurfDescriptorDistance(const cv::Mat &a, const cv::Mat &b)
 {
-    const int *pa = a.ptr<int32_t>();
-    const int *pb = b.ptr<int32_t>();
+  const float *pa = a.ptr<float>();
+  const float *pb = b.ptr<float>();
 
-    float dist=0;
-    for (int i = 0; i < a.cols; i++, pa++, pb++) {
-        dist += pow(*pa - *pb,2);
-    }
-    return sqrt(dist);
+  float sqd = 0.;
+  for (int i = 0; i < a.cols; i++, pa++, pb++)
+  {
+    sqd += (*pa - *pb) * (*pa - *pb);
+  }
+  return sqd;
 }
 
 } //namespace ORB_SLAM

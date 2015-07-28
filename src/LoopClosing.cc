@@ -237,7 +237,7 @@ bool LoopClosing::ComputeSim3()
 
     // We compute first ORB matches for each candidate
     // If enough matches are found, we setup a Sim3Solver
-    ORBmatcher matcher(0.8, true);
+    ORBmatcher matcher(0.7, true);
 
     vector<Sim3Solver*> vpSim3Solvers;
     vpSim3Solvers.resize(nInitialCandidates);
@@ -265,7 +265,7 @@ bool LoopClosing::ComputeSim3()
 
         int nmatches = matcher.SearchByBoW(mpCurrentKF, pKF, vvpMapPointMatches[i]);
 
-        if (nmatches > 3) {
+        if (nmatches > 30) {
             const string prefix = "/mnt/hgfs/Data/videos/ants/extract/loopPairs/";
             static boost::uuids::random_generator generator;
 
@@ -285,7 +285,7 @@ bool LoopClosing::ComputeSim3()
             cv::imwrite(src.str(), mpCurrentKF->GetImage());
             cv::imwrite(targ.str(), pKF->GetImage());
         }
-        if (nmatches < 15)
+        if (nmatches < 30)
         {
             vbDiscarded[i] = true;
             continue;

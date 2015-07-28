@@ -278,7 +278,7 @@ bool Frame::PosInGrid(cv::KeyPoint &kp, int &posX, int &posY)
 void Frame::ComputeBoW()
 {
     if (mBowVec.empty())
-    {   
+    {
         if (mSurfDescriptors.empty()) {
             // Extract SURF descriptors for reloc + loop from ORB keypoints locations
             static cv::SurfDescriptorExtractor mbSurfExtractor;
@@ -287,7 +287,7 @@ void Frame::ComputeBoW()
         std::vector<std::vector<float> > vCurrentDesc = Converter::toSurfDescriptorVector(mSurfDescriptors);
         // Feature vector associate features with nodes in the 4th level (from leaves up)
         // We assume the vocabulary tree has 6 levels, change the 4 otherwise
-        mpSurfvocabulary->transform(vCurrentDesc,mBowVec,mFeatVec,4);
+        mpSurfvocabulary->transform(vCurrentDesc, mBowVec, mFeatVec, 4);
     }
 }
 

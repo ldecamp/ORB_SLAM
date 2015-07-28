@@ -243,12 +243,10 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
                 if (!bOK)
                     bOK = TrackPreviousFrame();
             }
-            cout << "Working no reloc: " << bOK << endl;
         }
         else
         {
             bOK = Relocalisation();
-            cout << "Working reloc " << bOK << endl;
             //if Relocalised update time when lost
             if (bOK && mlastLostAt != 0) {
                 StatsHelper->updateTrackerLostInfo(mCurrentFrame.mTimeStamp - mlastLostAt);
@@ -259,7 +257,6 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         // If we have an initial estimation of the camera pose and matching. Track the local map.
         if (bOK){
             bOK = TrackLocalMap();
-            cout << "Track local " << bOK << endl;
         }
 
         // If tracking were good, check if we insert a keyframe
@@ -638,7 +635,6 @@ bool Tracking::TrackLocalMap()
                 mCurrentFrame.mvpMapPoints[i]->IncreaseFound();
         }
 
-    cout << "N inliers: " << mnMatchesInliers << endl;
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     if (mCurrentFrame.mnId < mnLastRelocFrameId + mMaxFrames && mnMatchesInliers < 50)
@@ -895,7 +891,7 @@ bool Tracking::Relocalisation()
 
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
-    ORBmatcher matcher(0.9, true);
+    ORBmatcher matcher(0.75, true);
 
     vector<PnPsolver*> vpPnPsolvers;
     vpPnPsolvers.resize(nKFs);
@@ -915,6 +911,7 @@ bool Tracking::Relocalisation()
             vbDiscarded[i] = true;
         else
         {
+            cout << "bow score: " << mpSurfVocabulary->score(pKF->GetBowVector(),mCurrentFrame.mBowVec) << endl;
             int nmatches = matcher.SearchByBoW(pKF, mCurrentFrame, vvpMapPointMatches[i]);
             cout << "Number bow match: " << nmatches << endl;
             if (nmatches < 15)
